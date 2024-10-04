@@ -8,11 +8,13 @@ import com.login_logout.repo.DoctorTimeSlotRepo;
 import com.login_logout.response.AppointmentResponse;
 import com.login_logout.response.MedicationResponse;
 import com.login_logout.response.PatientResponse;
+import com.login_logout.response.TimeSlotDTO;
 import com.login_logout.service.MedicationService;
 import com.login_logout.service.PatientService;
 import com.login_logout.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -233,17 +236,6 @@ public class PatientController {
         return "patient_view/home";
     }
 
-//    @GetMapping("/available-slots/{did}")
-//    public String getAvailableSlots(@PathVariable long did, Model model) {
-//        List<Slot> availableSlots = patientService.getAvailableSlots(did);
-//
-//        // Add the available slots to the model to pass to the view
-//        model.addAttribute("availableSlots", availableSlots);
-//
-//        return "patient_view/availableSlots"; // Make sure this Thymeleaf view exists
-//    }
-
-
     @GetMapping("/availability/{did}")
     public String getDoctorAvailabilityForNext7Days(@PathVariable long did, Model model) {
         // Fetch slots for the next 7 days based on 'did'
@@ -254,5 +246,20 @@ public class PatientController {
 
         return "patient_view/availability";
     }
+
+    @GetMapping("/checkSlotAvailability")
+    public ResponseEntity<List<TimeSlotDTO>> checkSlotAvailability(
+            @RequestParam("did") long did,
+            @RequestParam("date") String date) {
+
+        // Convert the date string to LocalDate
+        LocalDate appointmentDate = LocalDate.parse(date);
+
+        // Call the service method to check for available slots
+        List<TimeSlotDTO> availableSlots = patientService.getAvailableSlots(did, appointmentDate);
+
+        return ResponseEntity.ok(availableSlots);
+    }
+
 
 }
