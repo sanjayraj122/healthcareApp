@@ -124,6 +124,8 @@ public class PatientServiceImp implements PatientService {
         return true;
     }
 
+
+
     public List<Slot> getDoctorSlotsForNext7Days(long did) {
 
         LocalDate today = LocalDate.now();
@@ -137,11 +139,19 @@ public class PatientServiceImp implements PatientService {
 
         // Iterate over the next 7 days
         for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
-            final LocalDate currentDate = date; // Explicitly define a final variable for lambda capture
+            final LocalDate currentDate = date;
             List<Slot> slotsForDay = new ArrayList<>();
 
-            // Define 30-minute time ranges for each day (e.g., 9:00 AM to 5:00 PM)
-            LocalTime startTime = LocalTime.of(9, 0);
+            // Define startTime based on whether the currentDate is today
+            LocalTime startTime;
+            if (currentDate.equals(today)) {
+                // Round up to the next 30-minute interval
+                LocalTime now = LocalTime.now();
+                startTime = now.plusMinutes(30 - (now.getMinute() % 30));
+            } else {
+                startTime = LocalTime.of(9, 0);
+            }
+
             LocalTime endTime = LocalTime.of(18, 0);
 
             while (!startTime.isAfter(endTime)) {
@@ -159,7 +169,7 @@ public class PatientServiceImp implements PatientService {
                     Slot availableSlot = new Slot();
                     DoctorTimeSlot doctorTimeSlot = new DoctorTimeSlot();
                     doctorTimeSlot.setDoctor(doctorRepo.findById(did).get());
-                    availableSlot.setSlotDate(currentDate); // Use currentDate instead of date
+                    availableSlot.setSlotDate(currentDate);
                     availableSlot.setSlotTime(slotTime);
                     availableSlot.setStatus("AVAILABLE");
                     availableSlot.setDoctorSlot(doctorTimeSlot);
@@ -176,35 +186,6 @@ public class PatientServiceImp implements PatientService {
 
         // Flatten the map values into a single list to return
         return allSlotsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
-
     }
-
-//
-//    // Define all possible time slots for the day
-//    private final List<String> allTimeSlots = Arrays.asList(
-//            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-//            "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-//            "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
-//    );
-//
-//    @Override
-//    public List<TimeSlotDTO> getAvailableSlots(long did, LocalDate slotDate) {
-//        // Fetch all booked slots for the given doctor and date
-//        List<Slot> bookedSlots = slotRepo.findByIdAndSlotDate(did, slotDate);
-//
-//        // Convert booked slots to a set of times for easy lookup
-//        Set<String> bookedTimeSlots = bookedSlots.stream()
-//                .map(slot -> slot.getSlotTime().toString())
-//                .collect(Collectors.toSet());
-//
-//        // Create a list of TimeSlotDTOs with availability information
-//        List<TimeSlotDTO> availableSlots = new ArrayList<>();
-//        for (String time : allTimeSlots) {
-//            boolean isDisabled = bookedTimeSlots.contains(time);
-//            availableSlots.add(new TimeSlotDTO(time, isDisabled));
-//        }
-//
-//        return availableSlots;
-//    }
 
 }
