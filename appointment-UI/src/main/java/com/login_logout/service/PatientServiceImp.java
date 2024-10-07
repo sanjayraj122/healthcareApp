@@ -137,11 +137,19 @@ public class PatientServiceImp implements PatientService {
 
         // Iterate over the next 7 days
         for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
-            final LocalDate currentDate = date; // Explicitly define a final variable for lambda capture
+            final LocalDate currentDate = date;
             List<Slot> slotsForDay = new ArrayList<>();
 
-            // Define 30-minute time ranges for each day (e.g., 9:00 AM to 5:00 PM)
-            LocalTime startTime = LocalTime.of(9, 0);
+            // Define startTime based on whether the currentDate is today
+            LocalTime startTime;
+            if (currentDate.equals(today)) {
+                // Round up to the next 30-minute interval
+                LocalTime now = LocalTime.now();
+                startTime = now.plusMinutes(30 - (now.getMinute() % 30));
+            } else {
+                startTime = LocalTime.of(9, 0);
+            }
+
             LocalTime endTime = LocalTime.of(18, 0);
 
             while (!startTime.isAfter(endTime)) {
@@ -159,7 +167,7 @@ public class PatientServiceImp implements PatientService {
                     Slot availableSlot = new Slot();
                     DoctorTimeSlot doctorTimeSlot = new DoctorTimeSlot();
                     doctorTimeSlot.setDoctor(doctorRepo.findById(did).get());
-                    availableSlot.setSlotDate(currentDate); // Use currentDate instead of date
+                    availableSlot.setSlotDate(currentDate);
                     availableSlot.setSlotTime(slotTime);
                     availableSlot.setStatus("AVAILABLE");
                     availableSlot.setDoctorSlot(doctorTimeSlot);
@@ -176,7 +184,5 @@ public class PatientServiceImp implements PatientService {
 
         // Flatten the map values into a single list to return
         return allSlotsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
-
     }
-
 }

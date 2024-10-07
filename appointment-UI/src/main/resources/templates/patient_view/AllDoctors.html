@@ -138,9 +138,14 @@
 					<td th:text = "${doctor.email}"></td>
 					<td th:text = "${doctor.address}"></td>
 					<td>
-						<a th:href = "@{/patient/book/{did}(did=${doctor.did})}"
-						 class = "btn btn-primary">Check Availability</a>
+<!--						<a th:href = "@{/patient/book/{did}(did=${doctor.did})}"-->
+<!--						 class = "btn btn-primary">Check Availability</a>-->
 
+						<div align="center" style="padding-top: 15px;">
+							<a class="btn btn-primary" th:href="@{/patient/availability/{did} (did=${doctor.did})}">
+								View Available Slots
+							</a>
+						</div>
 
 					</td>
 				</tr>

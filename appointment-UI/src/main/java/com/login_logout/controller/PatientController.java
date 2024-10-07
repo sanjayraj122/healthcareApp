@@ -198,7 +198,20 @@ public class PatientController {
         AppointmentResponse appointmentResponse = patientService.getAppointmentByAID(aid);
         model.addAttribute("appointment", appointmentResponse);
 
-        return "patient_view/editAppointment";
+        // Fetch doctor ID (did) from the appointment response
+        long did = appointmentResponse.getDid();
+
+        // Fetch slots for the next 7 days for this doctor
+        List<Slot> slotsForNext7Days = patientService.getDoctorSlotsForNext7Days(did);
+
+        // Sort the slots by date and time in ascending order
+        slotsForNext7Days.sort(Comparator.comparing(Slot::getSlotDate).thenComparing(Slot::getSlotTime));
+
+        // Add slots and other attributes to the model
+        model.addAttribute("slotsForNext7Days", slotsForNext7Days);
+        model.addAttribute("doctorId", did);
+
+        return "patient_view/availability";
     }
 
     @PostMapping("/updateApp/{id}/{did}")
@@ -235,13 +248,10 @@ public class PatientController {
 
     @GetMapping("/availability/{did}")
     public String getDoctorAvailabilityForNext7Days(@ModelAttribute("appointment") AppointmentResponse appointment,@PathVariable long did, Model model) {
-        // Fetch slots for the next 7 days based on 'did'
-        List<Slot> slotsForNext7Days = patientService.getDoctorSlotsForNext7Days(did);
 
+        List<Slot> slotsForNext7Days = patientService.getDoctorSlotsForNext7Days(did);
         // Sort slots by date and time in ascending order
         slotsForNext7Days.sort(Comparator.comparing(Slot::getSlotDate).thenComparing(Slot::getSlotTime));
-
-        // Add necessary attributes to the model
         model.addAttribute("slotsForNext7Days", slotsForNext7Days);
 
         return "patient_view/availability";
