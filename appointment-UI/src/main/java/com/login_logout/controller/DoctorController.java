@@ -113,7 +113,6 @@ public class DoctorController {
         medicationResponse.setDid(appointment.getDid());
         medicationResponse.setAid(appointment.getAid());
         medicationService.createMedicine(medicationResponse); // Create the medication
-//        appointment.setMedication(medicationRequest.getMedicationResponse());
 
         DiagnosisResponse diagnosisResponse = new DiagnosisResponse();
         diagnosisResponse.setConditionCodes(diagnosisRequest.getConditionCodes());

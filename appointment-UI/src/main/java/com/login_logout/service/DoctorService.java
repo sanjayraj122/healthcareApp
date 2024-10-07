@@ -27,5 +27,4 @@ public interface DoctorService {
 
     AppointmentResponse updateAppointmentByDoctor(AppointmentResponse appointment);
 
-
 }
