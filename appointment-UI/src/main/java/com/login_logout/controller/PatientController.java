@@ -214,7 +214,7 @@ public class PatientController {
             session.setAttribute("booked", "Appointment Updated.");
             return "redirect:/patient/appointments/" + appointment.getPid() + "?success=true";
         } else {
-            session.setAttribute("error", "Appointment time is already booked for patient within 30 minutes. Please choose a different time.");
+            session.setAttribute("error", "Appointment time is already booked . Please choose a different time.");
             return "redirect:/patient/appointments/" + id;
         }
     }
@@ -238,10 +238,11 @@ public class PatientController {
         // Fetch slots for the next 7 days based on 'did'
         List<Slot> slotsForNext7Days = patientService.getDoctorSlotsForNext7Days(did);
 
+        // Sort slots by date and time in ascending order
+        slotsForNext7Days.sort(Comparator.comparing(Slot::getSlotDate).thenComparing(Slot::getSlotTime));
+
         // Add necessary attributes to the model
         model.addAttribute("slotsForNext7Days", slotsForNext7Days);
-//        model.addAttribute("appointment", appointment);
-//        model.addAttribute("doctorId", did);
 
         return "patient_view/availability";
     }
