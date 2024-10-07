@@ -8,13 +8,11 @@ import com.login_logout.repo.DoctorTimeSlotRepo;
 import com.login_logout.response.AppointmentResponse;
 import com.login_logout.response.MedicationResponse;
 import com.login_logout.response.PatientResponse;
-import com.login_logout.response.TimeSlotDTO;
 import com.login_logout.service.MedicationService;
 import com.login_logout.service.PatientService;
 import com.login_logout.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -186,7 +183,7 @@ public class PatientController {
         for (AppointmentResponse existingAppointment : existingAppointments) {
             if (existingAppointment.getDate().equals(newAppointment.getDate())) {
                 long minutesDiff = ChronoUnit.MINUTES.between(existingAppointment.getTime(), newAppointment.getTime());
-                if (minutesDiff >= -30 && minutesDiff <= 30) {
+                if (minutesDiff >= -29 && minutesDiff <= 29) {
                     return false;
 
                 }
@@ -237,29 +234,16 @@ public class PatientController {
     }
 
     @GetMapping("/availability/{did}")
-    public String getDoctorAvailabilityForNext7Days(@PathVariable long did, Model model) {
+    public String getDoctorAvailabilityForNext7Days(@ModelAttribute("appointment") AppointmentResponse appointment,@PathVariable long did, Model model) {
         // Fetch slots for the next 7 days based on 'did'
         List<Slot> slotsForNext7Days = patientService.getDoctorSlotsForNext7Days(did);
 
-        // Add the slots to the model to display on the patient dashboard
+        // Add necessary attributes to the model
         model.addAttribute("slotsForNext7Days", slotsForNext7Days);
+//        model.addAttribute("appointment", appointment);
+//        model.addAttribute("doctorId", did);
 
         return "patient_view/availability";
     }
-
-    @GetMapping("/checkSlotAvailability")
-    public ResponseEntity<List<TimeSlotDTO>> checkSlotAvailability(
-            @RequestParam("did") long did,
-            @RequestParam("date") String date) {
-
-        // Convert the date string to LocalDate
-        LocalDate appointmentDate = LocalDate.parse(date);
-
-        // Call the service method to check for available slots
-        List<TimeSlotDTO> availableSlots = patientService.getAvailableSlots(did, appointmentDate);
-
-        return ResponseEntity.ok(availableSlots);
-    }
-
 
 }

@@ -15,6 +15,6 @@ public class DaySlots {
         this.date = date;
         this.slots = slots;
     }
-    // Getters and setters
+
 }
 

@@ -6,8 +6,6 @@ import com.login_logout.response.AppointmentResponse;
 import com.login_logout.response.DoctorResponse;
 import com.login_logout.response.PatientResponse;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public interface PatientService {
@@ -39,11 +37,6 @@ public interface PatientService {
 
     boolean UpdateAppoStatus(long aid, int st);
 
-//    List<Slot> getAvailableSlots(long did);
-
-
     List<Slot> getDoctorSlotsForNext7Days(long did);
-
-    boolean isSlotAvailable(LocalDate date, LocalTime time, Long did);
 
 }
